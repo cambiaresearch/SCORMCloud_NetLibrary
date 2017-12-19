@@ -214,7 +214,85 @@ namespace RusticiSoftware.HostedEngine.Client
             request.CallService("rustici.registration.createRegistration");
         }
 
-        //TODO: Other overrides of createRegistration....
+        //TODO: Other overloads of createRegistration....
+
+        /// <summary>
+        /// Create a new Registration (Instance of a user taking a course).
+        /// This particular overload is intended to support all possible input values with
+        /// some sensible default values for less commonly used parameters.
+        /// </summary>
+        /// <param name="registrationId">Unique Identifier for the registration</param>
+        /// <param name="courseId">Unique Identifier for the course</param>
+        /// <param name="learnerId">Unique Identifier for the learner</param>
+        /// <param name="learnerFirstName">Learner's first name</param>
+        /// <param name="learnerLastName">Learner's last name</param>
+        /// <param name="resultsPostbackUrl">URL to which the server will post results back to</param>
+        /// <param name="authType">Type of Authentication used at results postback time</param>
+        /// <param name="postBackLoginName">If postback authentication is used, the logon name</param>
+        /// <param name="postBackLoginPassword">If postback authentication is used, the password</param>
+        /// <param name="resultsFormat">The Format of the results XML sent to the postback URL</param>
+        /// <param name="email">Learner's email</param>
+        /// <param name="versionId">Optional versionID, if Int32.MinValue, latest course version is used.</param>
+        /// <param name="learnerTags">A comma separated list of learner tags to associate with this registration</param>
+        /// <param name="courseTags">A comma separated list of course tags to associate with this registration</param>
+        /// <param name="registrationTags">A comma separated list of tags to associate with this registration</param>
+        public void CreateRegistration(
+            string registrationId, 
+            string courseId, 
+            string learnerId,
+            string learnerFirstName, 
+            string learnerLastName, 
+            string resultsPostbackUrl,
+            RegistrationResultsAuthType authType = RegistrationResultsAuthType.FORM, 
+            string postBackLoginName = "", 
+            string postBackLoginPassword = "",
+            RegistrationResultsFormat resultsFormat = RegistrationResultsFormat.COURSE,
+            string email = "",
+            int versionId = Int32.MinValue,
+            string learnerTags = "", 
+            string courseTags = "", 
+            string registrationTags = "")
+        {
+            ServiceRequest request = new ServiceRequest(configuration);
+
+            // Required:
+            request.Parameters.Add("regid", registrationId);
+            request.Parameters.Add("courseid", courseId);
+            request.Parameters.Add("learnerid", learnerId);
+            request.Parameters.Add("fname", learnerFirstName);
+            request.Parameters.Add("lname", learnerLastName);
+
+            // Optional:
+
+            if (!String.IsNullOrEmpty(resultsPostbackUrl))
+            {
+                request.Parameters.Add("postbackurl", resultsPostbackUrl);
+                request.Parameters.Add("authtype", Enum.GetName(authType.GetType(), authType).ToLower());
+            }
+            if (!String.IsNullOrEmpty(postBackLoginName))
+                request.Parameters.Add("urlname", postBackLoginName);
+            if (!String.IsNullOrEmpty(postBackLoginPassword))
+                request.Parameters.Add("urlpass", postBackLoginPassword);
+
+            request.Parameters.Add("resultsformat", Enum.GetName(resultsFormat.GetType(), resultsFormat).ToLower());
+
+            if (!String.IsNullOrEmpty(email))
+                request.Parameters.Add("email", email);
+            if (versionId != Int32.MinValue)
+                request.Parameters.Add("versionid", versionId);
+
+            // Optional tags
+            if (!String.IsNullOrEmpty(learnerTags))
+                request.Parameters.Add("learnerTags", learnerTags);
+            if (!String.IsNullOrEmpty(courseTags))
+                request.Parameters.Add("courseTags", courseTags);
+            if (!String.IsNullOrEmpty(registrationTags))
+                request.Parameters.Add("registrationTags", registrationTags);
+
+            request.CallService("rustici.registration.createRegistration");
+
+
+        }
 
         /// <summary>
         /// Create a new Registration (Instance of a user taking a course)
@@ -235,23 +313,6 @@ namespace RusticiSoftware.HostedEngine.Client
             request.Parameters.Add("learnerid", learnerId);
             request.CallService("rustici.registration.createRegistration");
         }
-
-        // <summary>
-        /// Confirm that a registrationExists
-        /// </summary>
-        /// <param name="registrationId">Unique Identifier for the registration</param>
-        public bool RegistrationExists(string registrationId)
-        {
-            ServiceRequest request = new ServiceRequest(configuration);
-            request.Parameters.Add("regid", registrationId);
-            XmlDocument response = request.CallService("rustici.registration.exists");
-
-
-            XmlElement attrEl = (XmlElement)response.GetElementsByTagName("result")[0];
-
-            return Convert.ToBoolean(attrEl.InnerXml.ToString());
-        }
-
 
         /// <summary>
         /// Create a new Registration (Instance of a user taking a course)
@@ -301,6 +362,22 @@ namespace RusticiSoftware.HostedEngine.Client
                 request.Parameters.Add("registrationTags", registrationTags);
 
             request.CallService("rustici.registration.createRegistration");
+        }
+
+        // <summary>
+        /// Confirm that a registrationExists
+        /// </summary>
+        /// <param name="registrationId">Unique Identifier for the registration</param>
+        public bool RegistrationExists(string registrationId)
+        {
+            ServiceRequest request = new ServiceRequest(configuration);
+            request.Parameters.Add("regid", registrationId);
+            XmlDocument response = request.CallService("rustici.registration.exists");
+
+
+            XmlElement attrEl = (XmlElement)response.GetElementsByTagName("result")[0];
+
+            return Convert.ToBoolean(attrEl.InnerXml.ToString());
         }
 
         /// <summary>
@@ -643,20 +720,20 @@ namespace RusticiSoftware.HostedEngine.Client
             //Api call will fail without a placeholder username and password at least:
             if (!String.IsNullOrEmpty(urlname))
             {
-                request.Parameters.Add("name", urlname);
+                request.Parameters.Add("urlname", urlname);
             }
             else
             {
-                request.Parameters.Add("name", "placeholderLoginName");
+                request.Parameters.Add("urlname", "placeholderLoginName");
             }
 
             if (!String.IsNullOrEmpty(urlpass))
             {
-                request.Parameters.Add("password", urlpass);
+                request.Parameters.Add("urlpass", urlpass);
             }
             else
             {
-                request.Parameters.Add("password", "placeholderLoginPassword");
+                request.Parameters.Add("urlpass", "placeholderLoginPassword");
             }
 
             request.Parameters.Add("authtype", Enum.GetName(authType.GetType(), authType).ToLower());

@@ -40,6 +40,8 @@ namespace RusticiSoftware.HostedEngine.Client
         private ImportStatus status = ImportStatus.CREATED;
         private List<ImportResult> importResults;
         private String errorMessage;
+        private String message;
+        private int progress;
 
         public ImportStatus Status
         {
@@ -53,13 +55,24 @@ namespace RusticiSoftware.HostedEngine.Client
         {
             get { return errorMessage; }
         }
+        public String Message
+        {
+            get { return message;  }
+        }
+        /// <summary>
+        /// Returns -1 if progress is not available or empty.
+        /// </summary>
+        public int Progress
+        {
+            get { return progress; }
+        }
 
         public AsyncImportResult(XmlDocument asyncImportResultXml)
         {
             String statusText = ((XmlElement)asyncImportResultXml
                                         .GetElementsByTagName("status")[0])
                                         .InnerText;
-            
+
             if (statusText.Equals("created")) {
                 this.status = ImportStatus.CREATED;
             } else if (statusText.Equals("running")) {
@@ -79,6 +92,22 @@ namespace RusticiSoftware.HostedEngine.Client
                                         .GetElementsByTagName("error")[0])
                                         .InnerText;
             }
+
+            //XmlElement rootElement = (XmlElement)asyncImportResultXml.GetElementsByTagName("rsp")[0];
+            XmlNode mainMessageNode = asyncImportResultXml.SelectSingleNode("/rsp/message");
+            if (mainMessageNode != null)
+            {
+                this.message = mainMessageNode.InnerText;
+            }
+
+            XmlNode mainProgressNode = asyncImportResultXml.SelectSingleNode("/rsp/progress");
+            if (mainProgressNode != null) {
+                if (!Int32.TryParse(mainProgressNode.InnerText, out this.progress)) {
+                    this.progress = -1;
+                }
+            }
+
+
         }
 
         public Boolean IsComplete()
