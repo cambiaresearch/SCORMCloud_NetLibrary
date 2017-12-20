@@ -42,6 +42,8 @@ namespace RusticiSoftware.HostedEngine.Client
         private String errorMessage;
         private String message;
         private int progress;
+        private XmlDocument rawXmlResponse;
+        private DateTime filledDateTime = DateTime.MinValue;
 
         public ImportStatus Status
         {
@@ -66,9 +68,26 @@ namespace RusticiSoftware.HostedEngine.Client
         {
             get { return progress; }
         }
+        public XmlDocument XmlResponse
+        {
+            get
+            {
+                return rawXmlResponse;
+            }
+        }
+        public DateTime FilledDateTime
+        {
+            get
+            {
+                return filledDateTime;
+            }
+        }
 
         public AsyncImportResult(XmlDocument asyncImportResultXml)
         {
+            rawXmlResponse = asyncImportResultXml;
+            filledDateTime = DateTime.Now;
+
             String statusText = ((XmlElement)asyncImportResultXml
                                         .GetElementsByTagName("status")[0])
                                         .InnerText;
