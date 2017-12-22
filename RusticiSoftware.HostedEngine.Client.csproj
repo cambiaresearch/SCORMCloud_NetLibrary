@@ -64,7 +64,6 @@
     <Compile Include="CourseDetail.cs" />
     <Compile Include="CourseVersion.cs" />
     <Compile Include="PostbackInfo.cs" />
-    <Compile Include="RegistrationReport.cs" />
     <Compile Include="Rsp.cs" />
     <Compile Include="TaggingService.cs" />
     <Compile Include="CourseData.cs" />
