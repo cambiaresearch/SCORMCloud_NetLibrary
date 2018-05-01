@@ -467,6 +467,41 @@ namespace RusticiSoftware.HostedEngine.Client
         }
 
         /// <summary>
+        /// Returns the current state of the registration, including completion
+        /// and satisfaction type data.  Amount of detail depends on format parameter.
+        /// </summary>
+        /// <param name="registrationId">Unique Identifier for the registration</param>
+        /// <param name="instanceId">Integer value (as string) of the registration instance to retrieve.</param>
+        /// <param name="resultsFormat">Degree of detail to return</param>
+        /// <returns>Registration data in XML Format</returns>
+        public string GetRegistrationResult(string registrationId, string instanceId, RegistrationResultsFormat resultsFormat)
+        {
+            return GetRegistrationResult(registrationId, instanceId, resultsFormat, DataFormat.XML);
+        }
+
+        /// <summary>
+        /// Returns the current state of the registration, including completion
+        /// and satisfaction type data.  Amount of detail depends on format parameter.
+        /// </summary>
+        /// <param name="registrationId">Unique Identifier for the registration</param>
+        /// <param name="instanceId">Integer value (as string) of the registration instance to retrieve.</param>
+        /// <param name="resultsFormat">Degree of detail to return</param>
+        /// <returns>Registration data in XML Format</returns>
+        public string GetRegistrationResult(string registrationId, string instanceId, RegistrationResultsFormat resultsFormat, DataFormat dataFormat)
+        {
+            ServiceRequest request = new ServiceRequest(configuration);
+            request.Parameters.Add("regid", registrationId);
+            request.Parameters.Add("instanceid", instanceId);
+            request.Parameters.Add("resultsformat", Enum.GetName(resultsFormat.GetType(), resultsFormat).ToLower());
+            if (dataFormat == DataFormat.JSON)
+                request.Parameters.Add("dataformat", "json");
+            XmlDocument response = request.CallService("rustici.registration.getRegistrationResult");
+
+            // Return the subset of the xml starting with the top <summary>
+            return response.ChildNodes[1].InnerXml;
+        }
+
+        /// <summary>
         /// Returns a list of registration id's along with their associated course
         /// </summary>
         /// <param name="regIdFilterRegex">Optional registration id filter</param>
